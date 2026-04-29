@@ -21,6 +21,7 @@ public class FactionContext(DbContextOptions<FactionContext> options) : DbContex
     public DbSet<Supporter> Supporters { get; set; }
     public DbSet<TelemetryEntry> TelemetryEntries { get; set; }
     public DbSet<ConfigValue> ConfigValues { get; set; }
+    public DbSet<ApiToken> ApiTokens { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
