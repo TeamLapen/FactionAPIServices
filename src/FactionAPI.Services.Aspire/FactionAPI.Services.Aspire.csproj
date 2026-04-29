@@ -12,4 +12,8 @@
       <ProjectReference Include="..\FactionAPI.Services\FactionAPI.Services.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    </ItemGroup>
+
 </Project>

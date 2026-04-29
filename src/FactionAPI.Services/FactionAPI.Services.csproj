@@ -9,6 +9,15 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Scalar.AspNetCore" />
     </ItemGroup>
 
     <ItemGroup>
@@ -18,7 +27,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\FactionAPI.Services.Infrastructure\FactionAPI.Services.Infrastructure.csproj" />
       <ProjectReference Include="..\FactionAPI.Services.ServiceDefaults\FactionAPI.Services.ServiceDefaults.csproj" />
+      <ProjectReference Include="..\FactionAPI.Services.V0\FactionAPI.Services.V0.csproj" />
+      <ProjectReference Include="..\FactionAPI.Services.V1\FactionAPI.Services.V1.csproj" />
     </ItemGroup>
 
 </Project>
