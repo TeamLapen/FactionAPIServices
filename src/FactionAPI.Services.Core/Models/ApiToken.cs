@@ -7,4 +7,6 @@ public class ApiToken
     public byte[] Token { get; set; }
     
     public List<string> ModIds { get; set; } = [];
+    
+    public bool LegacyAll { get; set; }
 }

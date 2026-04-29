@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddInfrastructure();
+builder.AddApiTokenAuthentication();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -21,6 +22,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapDefaultEndpoints();
 

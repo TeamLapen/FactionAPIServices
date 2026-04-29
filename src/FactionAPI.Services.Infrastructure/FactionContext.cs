@@ -37,8 +37,10 @@ public class FactionContext(DbContextOptions<FactionContext> options) : DbContex
 
         var telemetryEntry = modelBuilder.Entity<TelemetryEntry>();
         telemetryEntry.HasKey(t => t.Timestamp);
-        
+
         modelBuilder.Entity<ConfigValue>().HasKey(x => x.Key);
+
+        modelBuilder.Entity<ApiToken>().HasKey(t => t.Name);
     }
     
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

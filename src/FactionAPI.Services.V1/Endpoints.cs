@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using FactionAPI.Services.Core;
+using FactionAPI.Services.Core.Auth;
 using FactionAPI.Services.Core.Models;
 using FactionAPI.Services.Infrastructure;
 using Microsoft.AspNetCore.Builder;
@@ -22,7 +24,7 @@ public static class Endpoints
             .WithTags("Supporter");
 
         supporter.MapGet("list", ListSupporter);
-        supporter.MapPost("set", SetSupporter);
+        supporter.MapPost("set", SetSupporter).RequireAuthorization();
         
         
         v1.MapGroup("telemetry")
@@ -32,10 +34,10 @@ public static class Endpoints
         var config = v1.MapGroup("config")
             .WithTags("Config");
 
-        config.MapGet("set", SetConfigGet);
+        config.MapGet("set", SetConfigGet).RequireAuthorization();
         config.MapGet("get", GetConfig);
         config.MapGet("list", ListConfig);
-        config.MapPost("set", SetConfig);
+        config.MapPost("set", SetConfig).RequireAuthorization();
     }
 
     private static async Task<Results<Ok<List<Supporter>>,BadRequest, InternalServerError>> ListSupporter([FromServices] FactionContext context, ILogger<Supporter> logger, [FromQuery] ResourceLocation? faction = null, [FromQuery] string? type = null, [FromQuery] bool? hasBook = null)
@@ -58,12 +60,16 @@ public static class Endpoints
         }
     }
 
-    private static async Task<Results<Ok, BadRequest, InternalServerError>> SetSupporter(
+    private static async Task<Results<Ok, BadRequest, InternalServerError, UnauthorizedHttpResult>> SetSupporter(
         [FromServices] FactionContext context,
         ILogger<Supporter> logger,
+        ClaimsPrincipal user,
         [FromBody] List<Supporter> supporters
         )
     {
+        if (!user.HasLegacyAll())
+            return TypedResults.Unauthorized();
+
         try
         {
             context.RemoveRange(context.Supporters);
@@ -106,8 +112,11 @@ public static class Endpoints
         return TypedResults.Ok();
     }
 
-    private static async Task<Results<Ok, BadRequest>> SetConfigGet([FromServices] FactionContext context, [FromQuery] ResourceLocation configId, [FromQuery] string? configValue = null)
+    private static async Task<Results<Ok, BadRequest, UnauthorizedHttpResult>> SetConfigGet([FromServices] FactionContext context, ClaimsPrincipal user, [FromQuery] ResourceLocation configId, [FromQuery] string? configValue = null)
     {
+        if (!user.HasModAccess(configId.Identifier))
+            return TypedResults.Unauthorized();
+
         var value = await context.ConfigValues.FindAsync(configId);
         if (configValue is null)
         {
@@ -128,15 +137,21 @@ public static class Endpoints
         return TypedResults.Ok();
     }
     
-    private static async Task<Results<Ok, BadRequest>> SetConfig([FromServices] FactionContext context, [FromBody] Dictionary<ResourceLocation, string> configs, [FromQuery] bool overrideAll = false)
+    private static async Task<Results<Ok, BadRequest, UnauthorizedHttpResult>> SetConfig([FromServices] FactionContext context, ClaimsPrincipal user, [FromBody] Dictionary<ResourceLocation, string> configs, [FromQuery] bool overrideAll = false)
     {
         if (overrideAll)
         {
+            if (!user.HasLegacyAll())
+                return TypedResults.Unauthorized();
+
             context.RemoveRange(context.ConfigValues);
             context.AddRange(configs.Select(x => new ConfigValue { Key = x.Key, Value = x.Value }));
         }
         else
         {
+            if (configs.Keys.Any(k => !user.HasModAccess(k.Identifier)))
+                return TypedResults.Unauthorized();
+
             await context.ConfigValues.UpsertRange(configs.Select(x => new ConfigValue { Key = x.Key, Value = x.Value }))
                 .On(x => x.Key)
                 .WhenMatched((x, y) => new ConfigValue { Key = x.Key, Value = y.Value })

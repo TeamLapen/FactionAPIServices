@@ -1,3 +1,5 @@
+using FactionAPI.Services.Infrastructure.Auth;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +17,16 @@ public static class ServiceCollectionExtensions
         });
 
         builder.EnrichNpgsqlDbContext<FactionContext>();
-        
+
+        return builder;
+    }
+
+    public static IHostApplicationBuilder AddApiTokenAuthentication(this IHostApplicationBuilder builder)
+    {
+        builder.Services
+            .AddAuthentication("ApiToken")
+            .AddScheme<AuthenticationSchemeOptions, ApiTokenAuthenticationHandler>("ApiToken", _ => { });
+        builder.Services.AddAuthorization();
         return builder;
     }
 }

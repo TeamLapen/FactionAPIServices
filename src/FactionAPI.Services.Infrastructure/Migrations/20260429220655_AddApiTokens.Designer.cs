@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using FactionAPI.Services.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FactionAPI.Services.Infrastructure.Migrations
 {
     [DbContext(typeof(FactionContext))]
-    partial class FactionContextModelSnapshot : ModelSnapshot
+    [Migration("20260429220655_AddApiTokens")]
+    partial class AddApiTokens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
