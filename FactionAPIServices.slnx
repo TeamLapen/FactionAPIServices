@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/dev/">
+    <Project Path="src/FactionAPI.Services.Aspire/FactionAPI.Services.Aspire.csproj" />
+    <Project Path="src/FactionAPI.Services.ServiceDefaults/FactionAPI.Services.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/FactionAPI.Services/FactionAPI.Services.csproj" />
+  </Folder>
+</Solution>
