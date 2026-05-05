@@ -30,6 +30,7 @@ app.MapDefaultEndpoints();
 var api = app.MapGroup("api");
 api.MapV0Endpoints();
 api.MapV1Endpoints();
+api.MapAdminEndpoints();
 
 if (Assembly.GetEntryAssembly()?.GetName().Name != "GetDocument.Insider")
 {

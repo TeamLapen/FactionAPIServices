@@ -25,8 +25,16 @@ public static class ServiceCollectionExtensions
     {
         builder.Services
             .AddAuthentication("ApiToken")
-            .AddScheme<AuthenticationSchemeOptions, ApiTokenAuthenticationHandler>("ApiToken", _ => { });
-        builder.Services.AddAuthorization();
+            .AddScheme<AuthenticationSchemeOptions, ApiTokenAuthenticationHandler>("ApiToken", _ => { })
+            .AddScheme<AuthenticationSchemeOptions, AdminTokenAuthenticationHandler>("AdminToken", _ => { });
+
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("Admin", policy =>
+                policy.AddAuthenticationSchemes("AdminToken")
+                      .RequireAuthenticatedUser());
+        });
+
         return builder;
     }
 }
