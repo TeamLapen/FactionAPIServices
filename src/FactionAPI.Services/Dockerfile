@@ -7,7 +7,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY [ "Directory.Package.props", "./" ]
+COPY [ "Directory.Packages.props", "./" ]
 COPY ["src/FactionAPI.Services/FactionAPI.Services.csproj", "src/FactionAPI.Services/"]
 RUN dotnet restore "src/FactionAPI.Services/FactionAPI.Services.csproj"
 COPY . .
