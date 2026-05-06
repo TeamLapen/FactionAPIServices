@@ -44,7 +44,8 @@ public static class Endpoints
     {
         try
         {
-            IQueryable<Core.Models.Supporter> query = context.Supporters;
+            IQueryable<Core.Models.Supporter> query = context.Supporters
+                .Include(x => x.Appearances);
 
             if (faction != null) query = query.Where(x => x.FactionId == faction);
             if (type != null) query = query.Where(x => x.Status == Mapper.MapStatus(type));
@@ -72,7 +73,7 @@ public static class Endpoints
 
         try
         {
-            context.RemoveRange(context.Supporters);
+            context.RemoveRange(context.Supporters.Include(x => x.Appearances));
             context.AddRange(supporters.Select(Mapper.MapSupporter));
             await context.SaveChangesAsync();
             return TypedResults.Ok();
