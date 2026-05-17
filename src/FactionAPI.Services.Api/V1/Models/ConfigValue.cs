@@ -1,6 +1,6 @@
-using FactionAPI.Services.Core;
+using FactionAPI.Services.Infrastructure;
 
-namespace FactionAPI.Services.V1.Models;
+namespace FactionAPI.Services.Api.V1.Models;
 
 public class ConfigValue
 {

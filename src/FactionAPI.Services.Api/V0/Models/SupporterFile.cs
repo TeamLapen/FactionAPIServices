@@ -1,4 +1,4 @@
-namespace FactionAPI.Services.V0.Models;
+namespace FactionAPI.Services.Api.V0.Models;
 
 public class SupporterFile
 {

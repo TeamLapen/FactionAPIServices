@@ -1,20 +1,20 @@
-using FactionAPI.Services.Core.Models;
+using FactionAPI.Services.Infrastructure.Models;
 using Riok.Mapperly.Abstractions;
 
-namespace FactionAPI.Services.V1;
+namespace FactionAPI.Services.Api.V1;
 
 [Mapper]
 public static partial class Mapper
 {
-    [MapProperty(nameof(Models.Supporter.Texture), nameof(Core.Models.Supporter.PlayerId))]
-    [MapProperty(nameof(Models.Supporter.Appearance), nameof(Core.Models.Supporter.Appearances))]
-    [MapProperty(nameof(Models.Supporter.Faction), nameof(Core.Models.Supporter.FactionId))]
-    public static partial Core.Models.Supporter MapSupporter(this Models.Supporter source);
+    [MapProperty(nameof(Models.Supporter.Texture), nameof(Supporter.PlayerId))]
+    [MapProperty(nameof(Models.Supporter.Appearance), nameof(Supporter.Appearances))]
+    [MapProperty(nameof(Models.Supporter.Faction), nameof(Supporter.FactionId))]
+    public static partial Supporter MapSupporter(this Models.Supporter source);
     
-    [MapProperty(nameof(Core.Models.Supporter.PlayerId), nameof(Models.Supporter.Texture))]
-    [MapProperty(nameof(Core.Models.Supporter.Appearances), nameof(Models.Supporter.Appearance))]
-    [MapProperty(nameof(Core.Models.Supporter.FactionId), nameof(Models.Supporter.Faction))]
-    public static partial Models.Supporter MapSupporter(this Core.Models.Supporter source);
+    [MapProperty(nameof(Supporter.PlayerId), nameof(Models.Supporter.Texture))]
+    [MapProperty(nameof(Supporter.Appearances), nameof(Models.Supporter.Appearance))]
+    [MapProperty(nameof(Supporter.FactionId), nameof(Models.Supporter.Faction))]
+    public static partial Models.Supporter MapSupporter(this Supporter source);
     
     private static List<SupporterAppearance> MapSupporterAppearances(Dictionary<string, string> source)
     {

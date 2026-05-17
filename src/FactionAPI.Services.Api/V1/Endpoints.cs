@@ -1,8 +1,7 @@
 using System.Security.Claims;
-using FactionAPI.Services.Core;
-using FactionAPI.Services.Core.Auth;
-using FactionAPI.Services.Core.Models;
 using FactionAPI.Services.Infrastructure;
+using FactionAPI.Services.Infrastructure.Auth;
+using FactionAPI.Services.Infrastructure.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -10,9 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Supporter = FactionAPI.Services.V1.Models.Supporter;
+using Supporter = FactionAPI.Services.Api.V1.Models.Supporter;
 
-namespace FactionAPI.Services.V1;
+namespace FactionAPI.Services.Api.V1;
 
 public static class Endpoints
 {
@@ -44,7 +43,7 @@ public static class Endpoints
     {
         try
         {
-            IQueryable<Core.Models.Supporter> query = context.Supporters
+            IQueryable<Infrastructure.Models.Supporter> query = context.Supporters
                 .Include(x => x.Appearances);
 
             if (faction != null) query = query.Where(x => x.FactionId == faction);

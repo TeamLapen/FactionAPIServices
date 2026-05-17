@@ -29,8 +29,7 @@
     <ItemGroup>
       <ProjectReference Include="..\FactionAPI.Services.Infrastructure\FactionAPI.Services.Infrastructure.csproj" />
       <ProjectReference Include="..\FactionAPI.Services.ServiceDefaults\FactionAPI.Services.ServiceDefaults.csproj" />
-      <ProjectReference Include="..\FactionAPI.Services.V0\FactionAPI.Services.V0.csproj" />
-      <ProjectReference Include="..\FactionAPI.Services.V1\FactionAPI.Services.V1.csproj" />
+      <ProjectReference Include="..\FactionAPI.Services.Api\FactionAPI.Services.Api.csproj" />
     </ItemGroup>
 
 </Project>

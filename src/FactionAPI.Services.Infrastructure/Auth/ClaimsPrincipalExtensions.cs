@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace FactionAPI.Services.Core.Auth;
+namespace FactionAPI.Services.Infrastructure.Auth;
 
 public static class ClaimsPrincipalExtensions
 {

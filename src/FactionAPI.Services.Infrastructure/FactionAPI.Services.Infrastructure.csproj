@@ -22,8 +22,4 @@
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\FactionAPI.Services.Core\FactionAPI.Services.Core.csproj" />
-    </ItemGroup>
-
 </Project>

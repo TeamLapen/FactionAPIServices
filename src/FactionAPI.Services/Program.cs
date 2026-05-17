@@ -1,8 +1,7 @@
 using System.Reflection;
+using FactionAPI.Services.Api;
 using FactionAPI.Services.Infrastructure;
 using FactionAPI.Services.ServiceDefaults;
-using FactionAPI.Services.V0;
-using FactionAPI.Services.V1;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -26,11 +25,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapDefaultEndpoints();
-
-var api = app.MapGroup("api");
-api.MapV0Endpoints();
-api.MapV1Endpoints();
-api.MapAdminEndpoints();
+app.MapApi();
 
 if (Assembly.GetEntryAssembly()?.GetName().Name != "GetDocument.Insider")
 {

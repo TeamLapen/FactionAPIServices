@@ -1,5 +1,4 @@
-using FactionAPI.Services.Core;
-using FactionAPI.Services.Core.Models;
+using FactionAPI.Services.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;

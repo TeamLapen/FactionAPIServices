@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
-using FactionAPI.Services.Core.Models;
 using FactionAPI.Services.Infrastructure;
+using FactionAPI.Services.Infrastructure.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 
-namespace FactionAPI.Services.V1;
+namespace FactionAPI.Services.Api.Admin;
 
 public static class AdminEndpoints
 {

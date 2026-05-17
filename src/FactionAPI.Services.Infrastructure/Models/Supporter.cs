@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace FactionAPI.Services.Core.Models;
+namespace FactionAPI.Services.Infrastructure.Models;
 
 public class Supporter
 {

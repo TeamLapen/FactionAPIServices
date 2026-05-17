@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace FactionAPI.Services.Core;
+namespace FactionAPI.Services.Infrastructure;
 
 [JsonConverter(typeof(ResourceLocationJsonConverter))]
 public record ResourceLocation(string Identifier, string Name) : IParsable<ResourceLocation>
