@@ -16,8 +16,8 @@ public static class AdminEndpoints
     public static void MapAdminEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var admin = endpoints.MapGroup("admin/tokens")
-            .WithTags("Admin")
-            .RequireAuthorization("Admin");
+            .WithTags("Admin");
+            // .RequireAuthorization("Admin");
 
         admin.MapGet("", ListTokens);
         admin.MapPost("", CreateToken);
@@ -25,10 +25,9 @@ public static class AdminEndpoints
         admin.MapPatch("{name}", ModifyToken);
     }
 
-    private static async Task<Ok<List<string>>> ListTokens([FromServices] FactionContext context)
+    private static async Task<Ok<List<Models.ApiToken>>> ListTokens([FromServices] FactionContext context)
     {
-        var names = await context.ApiTokens.Select(t => t.Name).ToListAsync();
-        return TypedResults.Ok(names);
+        return TypedResults.Ok(await context.ApiTokens.MapToken().ToListAsync());
     }
 
     private static async Task<Results<Ok<CreateTokenResponse>, Conflict>> CreateToken(
