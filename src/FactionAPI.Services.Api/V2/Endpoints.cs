@@ -20,30 +20,32 @@ internal static class Endpoints
         var supporter = v2.MapGroup("supporter")
             .WithTags("Supporter");
         
-        supporter.MapGet("/", GetSupporter);
-        supporter.MapPut("/{modId}", SetSupporter).RequireAuthorization();
+        supporter.MapGet("", GetSupporter);
+        supporter.MapPut("{modId}", SetSupporter).RequireAuthorization();
         
         var config = v2.MapGroup("config")
-            .WithTags("Configs");
+            .WithTags("Config");
         
-        config.MapGet("/", GetConfigValues);
-        config.MapPut("/{modId}", SetConfigValues).RequireAuthorization();
+        config.MapGet("", GetConfigValues);
+        config.MapPut("{modId}", SetConfigValues).RequireAuthorization();
         
         var telemetry = v2.MapGroup("telemetry")
             .WithTags("Telemetry");
         
-        telemetry.MapPost("/{modid}", CreateTelemetryEntry)
-            .WithRequestTimeout(TimeSpan.FromSeconds(3));
+        telemetry.MapPost("{modid}", CreateTelemetryEntry)
+            .WithRequestTimeout(TimeSpan.FromSeconds(1));
         
     }
 
     #region Supporters
 
-    private static async Task<Results<Ok<List<Models.Supporter>>, InternalServerError>> GetSupporter([FromServices] FactionContext context, ILogger<Models.Supporter> logger)
+    private static async Task<Results<Ok<List<Models.Supporter>>, InternalServerError>> GetSupporter([FromServices] FactionContext context, ILogger<Models.Supporter> logger, [FromQuery] string? modId = null)
     {
         try
         {
-            var supporters = await context.Supporters.Select(x => new Models.Supporter()
+            IQueryable<Supporter> query = context.Supporters;
+            if (modId != null) query = query.Where(x => x.FactionId.Identifier == modId);
+            var supporters = await query.Select(x => new Models.Supporter()
             {
                 Faction = x.FactionId,
                 Name = x.Name,
@@ -62,7 +64,7 @@ internal static class Endpoints
         }
     }
 
-    private static async Task<Results<Ok, BadRequest<string>, InternalServerError>> SetSupporter([FromServices] FactionContext context, [FromServices] MojangApi mojang, [FromBody] List<Models.Supporter> supporters, ILogger<Models.Supporter> logger, [FromQuery] string modId)
+    private static async Task<Results<Ok, BadRequest<string>, InternalServerError>> SetSupporter([FromServices] FactionContext context, [FromServices] MojangApi mojang, [FromBody] List<Models.Supporter> supporters, ILogger<Models.Supporter> logger, [FromRoute] string modId)
     {
         try
         {
@@ -106,11 +108,13 @@ internal static class Endpoints
     
     #region Config
 
-    private static async Task<Results<Ok<List<Models.ConfigValue>>, InternalServerError>> GetConfigValues([FromServices] FactionContext context, ILogger<Models.ConfigValue> logger)
+    private static async Task<Results<Ok<List<Models.ConfigValue>>, InternalServerError>> GetConfigValues([FromServices] FactionContext context, ILogger<Models.ConfigValue> logger, [FromQuery] string? modId = null)
     {
         try
         {
-            var configs = await context.ConfigValues.Select(x => new Models.ConfigValue()
+            IQueryable<ConfigValue> query = context.ConfigValues;
+            if (modId != null) query = query.Where(x => x.Key.Identifier == modId);
+            var configs = await query.Select(x => new Models.ConfigValue()
             {
                 Key = x.Key,
                 Value = x.Value,
@@ -125,7 +129,7 @@ internal static class Endpoints
         }
     }
 
-    private static async Task<Results<Ok, BadRequest<string>, InternalServerError>> SetConfigValues([FromServices] FactionContext context, [FromBody] Dictionary<ResourceLocation, string> configValues, ILogger<Models.ConfigValue> logger, [FromQuery] string modId)
+    private static async Task<Results<Ok, BadRequest<string>, InternalServerError>> SetConfigValues([FromServices] FactionContext context, [FromBody] Dictionary<ResourceLocation, string> configValues, ILogger<Models.ConfigValue> logger, [FromRoute] string modId)
     {
         try
         {
@@ -155,20 +159,29 @@ internal static class Endpoints
 
     #region Telemetry
 
-    public static async Task<Ok> CreateTelemetryEntry([FromServices] FactionContext context, [FromBody] Models.TelemetryData entry, [FromQuery] string modId, ILogger<Models.Supporter> logger)
+    public static async Task<Ok> CreateTelemetryEntry([FromServices] FactionContext context, [FromBody] Models.TelemetryData entry, [FromRoute] string modId, ILogger<Models.Supporter> logger)
     {
         try
         {
+            var timestamp = DateTime.UtcNow;
             context.TelemetryEntries.Add(new TelemetryEntry()
             {
-                Timestamp = DateTime.UtcNow,
+                Timestamp = timestamp,
                 Side = entry.Side.ToString(),
                 MinecraftVersion = entry.MinecraftVersion,
                 ModVersion = entry.ModVersion,
                 ModCount = entry.ModCount,
                 ModId = modId,
-                DependingMods = entry.DependingMods,
             });
+            if (entry.DependingMods is { Count: > 0 })
+            {
+                context.TelemetryDependingMods.AddRange(entry.DependingMods.Select(dep => new TelemetryDependingMod
+                {
+                    Timestamp = timestamp,
+                    ModId = modId,
+                    DependingModId = dep,
+                }));
+            }
             await context.SaveChangesAsync();
             return TypedResults.Ok();
         }

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace FactionAPI.Services.Api.V2.Models;
 
 public class TelemetryData
@@ -13,6 +15,7 @@ public class TelemetryData
     public List<string>? DependingMods { get; set; }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Side
 {
     Unknown, Client, Server, 

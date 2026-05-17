@@ -107,13 +107,29 @@ namespace FactionAPI.Services.Infrastructure.Migrations
                     b.ToTable("SupporterAppearance");
                 });
 
-            modelBuilder.Entity("FactionAPI.Services.Infrastructure.Models.TelemetryEntry", b =>
+            modelBuilder.Entity("FactionAPI.Services.Infrastructure.Models.TelemetryDependingMod", b =>
                 {
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
-                    b.PrimitiveCollection<List<string>>("DependingMods")
-                        .HasColumnType("text[]");
+                    b.Property<string>("DependingModId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Timestamp", "DependingModId");
+
+                    b.HasIndex("ModId", "DependingModId");
+
+                    b.ToTable("TelemetryDependingMods");
+                });
+
+            modelBuilder.Entity("FactionAPI.Services.Infrastructure.Models.TelemetryEntry", b =>
+                {
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("MinecraftVersion")
                         .HasColumnType("text");
@@ -140,6 +156,15 @@ namespace FactionAPI.Services.Infrastructure.Migrations
                     b.HasOne("FactionAPI.Services.Infrastructure.Models.Supporter", null)
                         .WithMany("Appearances")
                         .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FactionAPI.Services.Infrastructure.Models.TelemetryDependingMod", b =>
+                {
+                    b.HasOne("FactionAPI.Services.Infrastructure.Models.TelemetryEntry", null)
+                        .WithMany()
+                        .HasForeignKey("Timestamp")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

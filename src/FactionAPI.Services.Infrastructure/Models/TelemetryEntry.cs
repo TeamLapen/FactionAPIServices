@@ -8,6 +8,4 @@ public class TelemetryEntry
     public string? ModVersion { get; set; }
     public int? ModCount { get; set; }
     public string? ModId { get; set; }
-    
-    public List<string>? DependingMods { get; set; }
 }

@@ -21,6 +21,7 @@ public class FactionContext(DbContextOptions<FactionContext> options) : DbContex
     public DbSet<TelemetryEntry> TelemetryEntries { get; set; }
     public DbSet<ConfigValue> ConfigValues { get; set; }
     public DbSet<ApiToken> ApiTokens { get; set; }
+    public DbSet<TelemetryDependingMod> TelemetryDependingMods { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,6 +37,14 @@ public class FactionContext(DbContextOptions<FactionContext> options) : DbContex
 
         var telemetryEntry = modelBuilder.Entity<TelemetryEntry>();
         telemetryEntry.HasKey(t => t.Timestamp);
+
+        var dependingMod = modelBuilder.Entity<TelemetryDependingMod>();
+        dependingMod.HasKey(d => new { d.Timestamp, d.DependingModId });
+        dependingMod.HasOne<TelemetryEntry>()
+            .WithMany()
+            .HasForeignKey(d => d.Timestamp)
+            .OnDelete(DeleteBehavior.Cascade);
+        dependingMod.HasIndex(d => new { d.ModId, d.DependingModId });
 
         modelBuilder.Entity<ConfigValue>().HasKey(x => x.Key);
 
