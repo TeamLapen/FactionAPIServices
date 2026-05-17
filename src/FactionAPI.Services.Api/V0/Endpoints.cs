@@ -20,16 +20,17 @@ internal static class Endpoints
         v0.MapGroup("supporter")
             .WithTags("Supporter")
             .MapGet("list", List);
-        
+
         v0.MapGroup("telemetry")
             .WithTags("Telemetry")
+            .RequireRateLimiting("telemetry")
             .MapGet("basic", Telemetry);
     }
 
     private static async Task<Results<Ok<SupporterFile>,BadRequest>> List([FromServices] FactionContext context)
     {
         IQueryable<Supporter> query = context.Supporters;
-        
+
         var supporters = await query.Include(supporter => supporter.FactionId).ToListAsync();
 
         var result = new SupporterFile

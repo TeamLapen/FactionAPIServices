@@ -11,9 +11,6 @@ public class Supporter
     
     public required string TextureName { get; set; }
     
-    [Obsolete("For v0 api")]
-    public int? Type {get; set;}
-    
     public required Status Status { get; set; }
     
     public string? BookId { get; set; }

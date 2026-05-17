@@ -16,8 +16,8 @@ public static class AdminEndpoints
     public static void MapAdminEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var admin = endpoints.MapGroup("admin/tokens")
-            .WithTags("Admin");
-            // .RequireAuthorization("Admin");
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
 
         admin.MapGet("", ListTokens);
         admin.MapPost("", CreateToken);

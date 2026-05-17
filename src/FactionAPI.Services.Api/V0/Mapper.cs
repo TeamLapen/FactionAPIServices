@@ -17,6 +17,6 @@ public static class Mapper
         },
         Texture = source.TextureName,
         BookId = source.BookId,
-        Type = source.Type ?? 0,
+        Type = source.Appearances.Where(x => x.Key == "type").Select(x => int.TryParse(x.Value, out int type) ? type : (int?)null).FirstOrDefault() ?? 0,
     };
 }

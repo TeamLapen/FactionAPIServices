@@ -23,10 +23,11 @@ public static class Endpoints
             .WithTags("Supporter");
 
         supporter.MapGet("list", ListSupporter);
-        
-        
+
+
         v1.MapGroup("telemetry")
             .WithTags("Telemetry")
+            .RequireRateLimiting("telemetry")
             .MapGet("basic", Telemetry);
 
         var config = v1.MapGroup("config")
@@ -54,7 +55,7 @@ public static class Endpoints
                 Name = x.Name,
                 Status = MapStatus(x.Status),
                 BookId = x.BookId,
-                Type = x.Type,
+                Type = x.Appearances.Where(app => app.Key == "type").Select(app => int.TryParse(app.Value, out int typei) ? typei : (int?)null).FirstOrDefault() ?? 0,
                 Appearance = x.Appearances.ToDictionary(a => a.Key, a => a.Value),
                 Texture = x.TextureName,
             }).ToList());
@@ -103,19 +104,19 @@ public static class Endpoints
         {
             return TypedResults.BadRequest();
         }
-        
+
         return TypedResults.Ok(value);
     }
-    
+
     private static async Task<Results<Ok<Dictionary<ResourceLocation,string>>, BadRequest>> ListConfig([FromServices] FactionContext context, [FromQuery] string? modId = null)
     {
         var start = modId ?? string.Empty;
-        
+
         var values = await context.ConfigValues.Where(x => string.IsNullOrEmpty(start) || x.Key.Identifier == start).ToDictionaryAsync(x => x.Key, x => x.Value);
-        
+
         return TypedResults.Ok(values);
     }
-    
+
     public static Status MapStatus(string? source) => source switch
     {
         "dev" => Status.Dev,
@@ -123,7 +124,7 @@ public static class Endpoints
         "temporary" => Status.Temporary,
         _ => Status.Unknown,
     };
-    
+
     public static string MapStatus(Status? source) => source switch
     {
         Status.Dev => "dev",

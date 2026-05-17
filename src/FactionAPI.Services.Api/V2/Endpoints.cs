@@ -19,22 +19,23 @@ internal static class Endpoints
 
         var supporter = v2.MapGroup("supporter")
             .WithTags("Supporter");
-        
+
         supporter.MapGet("", GetSupporter);
         supporter.MapPut("{modId}", SetSupporter).RequireAuthorization();
-        
+
         var config = v2.MapGroup("config")
             .WithTags("Config");
-        
+
         config.MapGet("", GetConfigValues);
         config.MapPut("{modId}", SetConfigValues).RequireAuthorization();
-        
+
         var telemetry = v2.MapGroup("telemetry")
-            .WithTags("Telemetry");
-        
+            .WithTags("Telemetry")
+            .RequireRateLimiting("telemetry");
+
         telemetry.MapPost("{modid}", CreateTelemetryEntry)
             .WithRequestTimeout(TimeSpan.FromSeconds(1));
-        
+
     }
 
     #region Supporters
@@ -45,7 +46,7 @@ internal static class Endpoints
         {
             IQueryable<Supporter> query = context.Supporters;
             if (modId != null) query = query.Where(x => x.FactionId.Identifier == modId);
-            var supporters = await query.Select(x => new Models.Supporter()
+            var supporters = (await query.Include(x => x.Appearances).ToListAsync()).Select(x => new Models.Supporter()
             {
                 Faction = x.FactionId,
                 Name = x.Name,
@@ -53,8 +54,8 @@ internal static class Endpoints
                 Status = Mapper.MapStatus(x.Status),
                 BookId = x.BookId,
                 Appearance = x.Appearances.ToDictionary(a => a.Key, a => a.Value)
-            }).ToListAsync();
-            
+            }).ToList();
+
             return TypedResults.Ok(supporters);
         }
         catch (Exception e)
@@ -72,11 +73,11 @@ internal static class Endpoints
             {
                 return TypedResults.BadRequest("All supporters must have the same faction as the modId");
             }
-            
+
             context.RemoveRange(context.Supporters.Where(x => x.FactionId.Identifier == modId));
-            
+
             Dictionary<Guid, string> textures = new();
-            
+
             foreach (var supporter in supporters)
             {
                 var name = await mojang.GetProfile(supporter.PlayerId);
@@ -94,7 +95,7 @@ internal static class Endpoints
                     .ToList(),
                 TextureName = textures[x.PlayerId],
             }));
-            
+
             await context.SaveChangesAsync();
             return TypedResults.Ok();
         }
@@ -105,7 +106,7 @@ internal static class Endpoints
         }
     }
     #endregion
-    
+
     #region Config
 
     private static async Task<Results<Ok<List<Models.ConfigValue>>, InternalServerError>> GetConfigValues([FromServices] FactionContext context, ILogger<Models.ConfigValue> logger, [FromQuery] string? modId = null)
@@ -119,7 +120,7 @@ internal static class Endpoints
                 Key = x.Key,
                 Value = x.Value,
             }).ToListAsync();
-            
+
             return TypedResults.Ok(configs);
         }
         catch (Exception e)
@@ -137,15 +138,15 @@ internal static class Endpoints
             {
                 return TypedResults.BadRequest("All supporters must have the same faction as the modId");
             }
-            
+
             context.RemoveRange(context.ConfigValues.Where(x => x.Key.Identifier == modId));
-            
+
             context.ConfigValues.AddRange(configValues.Select(x => new ConfigValue()
             {
                 Key = x.Key,
                 Value = x.Value,
             }));
-            
+
             await context.SaveChangesAsync();
             return TypedResults.Ok();
         }
