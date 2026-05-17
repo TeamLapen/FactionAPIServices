@@ -48,7 +48,7 @@ internal static class Endpoints
         try
         {
             IQueryable<Supporter> query = context.Supporters;
-            if (modId != null) query = query.Where(x => x.FactionId.Identifier == modId);
+            if (modId != null) query = query.Where(x => x.FactionId.MatchesModId(modId));
             var supporters = (await query.Include(x => x.Appearances).ToListAsync()).Select(x => new Models.Supporter()
             {
                 Faction = x.FactionId,
@@ -77,7 +77,7 @@ internal static class Endpoints
                 return TypedResults.BadRequest("All supporters must have the same faction as the modId");
             }
 
-            context.RemoveRange(context.Supporters.Where(x => x.FactionId.Identifier == modId));
+            context.RemoveRange(context.Supporters.Where(x => x.FactionId.MatchesModId(modId)));
 
             Dictionary<Guid, string> textures = new();
 
@@ -117,7 +117,7 @@ internal static class Endpoints
         try
         {
             IQueryable<ConfigValue> query = context.ConfigValues;
-            if (modId != null) query = query.Where(x => x.Key.Identifier == modId);
+            if (modId != null) query = query.Where(x => x.Key.MatchesModId(modId));
             var configs = await query.Select(x => new Models.ConfigValue()
             {
                 Key = x.Key,
@@ -142,7 +142,7 @@ internal static class Endpoints
                 return TypedResults.BadRequest("All supporters must have the same faction as the modId");
             }
 
-            context.RemoveRange(context.ConfigValues.Where(x => x.Key.Identifier == modId));
+            context.RemoveRange(context.ConfigValues.Where(x => x.Key.MatchesModId(modId)));
 
             context.ConfigValues.AddRange(configValues.Select(x => new ConfigValue()
             {

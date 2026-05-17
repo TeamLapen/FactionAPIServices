@@ -10,7 +10,8 @@ public class FactionContextDesignTimeFactory : IDesignTimeDbContextFactory<Facti
     public FactionContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<FactionContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Database=factionapi;Username=postgres;Password=postgres");
+        optionsBuilder.UseNpgsql("Host=localhost;Database=factionapi;Username=postgres;Password=postgres")
+                      .UseProjectables();
         return new FactionContext(optionsBuilder.Options);
     }
 }

@@ -13,7 +13,8 @@ public static class ServiceCollectionExtensions
     {
         builder.Services.AddPooledDbContextFactory<FactionContext>(b =>
         {
-            b.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+            b.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+             .UseProjectables();
         });
 
         builder.EnrichNpgsqlDbContext<FactionContext>();

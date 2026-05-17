@@ -112,7 +112,7 @@ public static class Endpoints
     {
         var start = modId ?? string.Empty;
 
-        var values = await context.ConfigValues.Where(x => string.IsNullOrEmpty(start) || x.Key.Identifier == start).ToDictionaryAsync(x => x.Key, x => x.Value);
+        var values = await context.ConfigValues.Where(x => string.IsNullOrEmpty(start) || x.Key.MatchesModId(start)).ToDictionaryAsync(x => x.Key, x => x.Value);
 
         return TypedResults.Ok(values);
     }
