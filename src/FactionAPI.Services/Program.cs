@@ -37,6 +37,7 @@ builder.Services.AddRateLimiter(options =>
         ]));
     });
 });
+builder.Services.AddOutputCache();
 
 var app = builder.Build();
 
@@ -48,6 +49,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRateLimiter();
+app.UseOutputCache();
 app.UseAuthentication();
 app.UseAuthorization();
 

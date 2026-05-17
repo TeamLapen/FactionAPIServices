@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace FactionAPI.Services.Api.V2;
@@ -20,7 +22,8 @@ internal static class Endpoints
         var supporter = v2.MapGroup("supporter")
             .WithTags("Supporter");
 
-        supporter.MapGet("", GetSupporter);
+        supporter.MapGet("", GetSupporter)
+            .CacheOutput(p => p.Expire(TimeSpan.FromMinutes(5)).SetVaryByQuery("modId").Tag("supporter"));
         supporter.MapPut("{modId}", SetSupporter).RequireAuthorization();
 
         var config = v2.MapGroup("config")
