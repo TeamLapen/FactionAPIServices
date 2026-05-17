@@ -77,7 +77,7 @@ internal static class Endpoints
                 return TypedResults.BadRequest("All supporters must have the same faction as the modId");
             }
 
-            context.RemoveRange(context.Supporters.Where(x => x.FactionId.MatchesModId(modId)));
+            context.RemoveRange(context.Supporters.Include(x => x.Appearances).Where(x => x.FactionId.MatchesModId(modId)));
 
             Dictionary<Guid, string> textures = new();
 

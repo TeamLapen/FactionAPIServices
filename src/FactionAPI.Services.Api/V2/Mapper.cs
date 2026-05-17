@@ -4,7 +4,7 @@ namespace FactionAPI.Services.Api.V2;
 
 public static class Mapper
 {
-    public static Status MapStatus(string? source) => source switch
+    public static Status MapStatus(string? source) => source?.ToLowerInvariant() switch
     {
         "dev" => Status.Dev,
         "contributor" => Status.Contributor,
