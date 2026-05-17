@@ -12,8 +12,4 @@
       <ProjectReference Include="..\FactionAPI.Services.Infrastructure\FactionAPI.Services.Infrastructure.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Riok.Mapperly" />
-    </ItemGroup>
-
 </Project>

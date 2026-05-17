@@ -23,7 +23,6 @@ public static class Endpoints
             .WithTags("Supporter");
 
         supporter.MapGet("list", ListSupporter);
-        supporter.MapPost("set", SetSupporter).RequireAuthorization();
         
         
         v1.MapGroup("telemetry")
@@ -33,10 +32,8 @@ public static class Endpoints
         var config = v1.MapGroup("config")
             .WithTags("Config");
 
-        config.MapGet("set", SetConfigGet).RequireAuthorization();
         config.MapGet("get", GetConfig);
         config.MapGet("list", ListConfig);
-        config.MapPost("set", SetConfig).RequireAuthorization();
     }
 
     private static async Task<Results<Ok<List<Supporter>>,BadRequest, InternalServerError>> ListSupporter([FromServices] FactionContext context, ILogger<Supporter> logger, [FromQuery] ResourceLocation? faction = null, [FromQuery] string? type = null, [FromQuery] bool? hasBook = null)
@@ -47,11 +44,20 @@ public static class Endpoints
                 .Include(x => x.Appearances);
 
             if (faction != null) query = query.Where(x => x.FactionId == faction);
-            if (type != null) query = query.Where(x => x.Status == Mapper.MapStatus(type));
+            if (type != null) query = query.Where(x => x.Status == MapStatus(type));
             if (hasBook != null) query = query.Where(x => x.BookId != null);
 
             var result = await query.ToListAsync();
-            return TypedResults.Ok(result.Select(Mapper.MapSupporter).ToList());
+            return TypedResults.Ok(result.Select(x => new Supporter()
+            {
+                Faction = x.FactionId,
+                Name = x.Name,
+                Status = MapStatus(x.Status),
+                BookId = x.BookId,
+                Type = x.Type,
+                Appearance = x.Appearances.ToDictionary(a => a.Key, a => a.Value),
+                Texture = x.TextureName,
+            }).ToList());
         }
         catch (Exception e)
         {
@@ -60,30 +66,6 @@ public static class Endpoints
         }
     }
 
-    private static async Task<Results<Ok, BadRequest, InternalServerError, UnauthorizedHttpResult>> SetSupporter(
-        [FromServices] FactionContext context,
-        ILogger<Supporter> logger,
-        ClaimsPrincipal user,
-        [FromBody] List<Supporter> supporters
-        )
-    {
-        if (!user.HasLegacyAll())
-            return TypedResults.Unauthorized();
-
-        try
-        {
-            context.RemoveRange(context.Supporters.Include(x => x.Appearances));
-            context.AddRange(supporters.Select(Mapper.MapSupporter));
-            await context.SaveChangesAsync();
-            return TypedResults.Ok();
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Error while setting supporters");
-            return TypedResults.InternalServerError();
-        }
-    }
-    
     private static async Task<Ok> Telemetry(
         [FromServices] FactionContext context,
         [FromQuery(Name = "mod_version")] string? modVersion = null,
@@ -101,6 +83,7 @@ public static class Endpoints
                 MinecraftVersion = mcVersion,
                 ModVersion = modVersion,
                 ModCount = modCount,
+                ModId = "vampirism"
             });
             await context.SaveChangesAsync();
         }
@@ -112,55 +95,6 @@ public static class Endpoints
         return TypedResults.Ok();
     }
 
-    private static async Task<Results<Ok, BadRequest, UnauthorizedHttpResult>> SetConfigGet([FromServices] FactionContext context, ClaimsPrincipal user, [FromQuery] ResourceLocation configId, [FromQuery] string? configValue = null)
-    {
-        if (!user.HasModAccess(configId.Identifier))
-            return TypedResults.Unauthorized();
-
-        var value = await context.ConfigValues.FindAsync(configId);
-        if (configValue is null)
-        {
-            if (value is not null)
-            {
-                context.Remove(value);
-            }
-        }
-        else if (value is not null)
-        {
-            value.Value = configValue;
-        }
-        else
-        {
-            await context.ConfigValues.AddAsync(new ConfigValue { Key = configId, Value = configValue });
-        }
-        await context.SaveChangesAsync();
-        return TypedResults.Ok();
-    }
-    
-    private static async Task<Results<Ok, BadRequest, UnauthorizedHttpResult>> SetConfig([FromServices] FactionContext context, ClaimsPrincipal user, [FromBody] Dictionary<ResourceLocation, string> configs, [FromQuery] bool overrideAll = false)
-    {
-        if (overrideAll)
-        {
-            if (!user.HasLegacyAll())
-                return TypedResults.Unauthorized();
-
-            context.RemoveRange(context.ConfigValues);
-            context.AddRange(configs.Select(x => new ConfigValue { Key = x.Key, Value = x.Value }));
-        }
-        else
-        {
-            if (configs.Keys.Any(k => !user.HasModAccess(k.Identifier)))
-                return TypedResults.Unauthorized();
-
-            await context.ConfigValues.UpsertRange(configs.Select(x => new ConfigValue { Key = x.Key, Value = x.Value }))
-                .On(x => x.Key)
-                .WhenMatched((x, y) => new ConfigValue { Key = x.Key, Value = y.Value })
-                .RunAsync();
-        }
-        await context.SaveChangesAsync();
-        return TypedResults.Ok();
-    }
-    
     private static async Task<Results<Ok<ConfigValue>, BadRequest>> GetConfig([FromServices] FactionContext context, [FromQuery] ResourceLocation configId)
     {
         var value = await context.ConfigValues.FindAsync(configId);
@@ -181,4 +115,20 @@ public static class Endpoints
         
         return TypedResults.Ok(values);
     }
+    
+    public static Status MapStatus(string? source) => source switch
+    {
+        "dev" => Status.Dev,
+        "contributor" => Status.Contributor,
+        "temporary" => Status.Temporary,
+        _ => Status.Unknown,
+    };
+    
+    public static string MapStatus(Status? source) => source switch
+    {
+        Status.Dev => "dev",
+        Status.Contributor => "contributor",
+        Status.Temporary => "temporary",
+        _ => "unknown",
+    };
 }

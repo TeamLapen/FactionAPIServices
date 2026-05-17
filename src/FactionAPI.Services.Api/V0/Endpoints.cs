@@ -59,6 +59,7 @@ internal static class Endpoints
                 MinecraftVersion = mcVersion,
                 ModVersion = modVersion,
                 ModCount = modCount,
+                ModId = "vampirism"
             });
             await context.SaveChangesAsync();
         }

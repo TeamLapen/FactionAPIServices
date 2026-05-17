@@ -25,7 +25,7 @@ public class FactionContext(DbContextOptions<FactionContext> options) : DbContex
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var supporter = modelBuilder.Entity<Supporter>();
-        supporter.HasKey(s => s.PlayerId);
+        supporter.HasKey(s => s.Id);
         supporter.HasMany(x => x.Appearances)
             .WithOne()
             .HasForeignKey(x => x.PlayerId)

@@ -4,11 +4,12 @@ namespace FactionAPI.Services.Infrastructure.Models;
 
 public class Supporter
 {
-    public required string PlayerId { get; set; }
-    
+    public Guid Id { get; set; }
     public required ResourceLocation FactionId { get; set; }
     
     public required string Name { get; set; }
+    
+    public required string TextureName { get; set; }
     
     [Obsolete("For v0 api")]
     public int? Type {get; set;}
@@ -26,7 +27,7 @@ public class SupporterAppearance
     
     public required string Value { get; set; }
     
-    public string PlayerId { get; set; }
+    public Guid PlayerId { get; set; }
     
 }
 

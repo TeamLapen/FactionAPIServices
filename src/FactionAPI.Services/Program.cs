@@ -1,5 +1,6 @@
 using System.Reflection;
 using FactionAPI.Services.Api;
+using FactionAPI.Services.Api.Services;
 using FactionAPI.Services.Infrastructure;
 using FactionAPI.Services.ServiceDefaults;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,8 @@ builder.AddServiceDefaults();
 builder.AddInfrastructure();
 builder.AddApiTokenAuthentication();
 builder.Services.AddOpenApi();
+builder.Services.AddTransient<MojangApi>();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
