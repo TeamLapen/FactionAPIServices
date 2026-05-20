@@ -23,13 +23,14 @@ internal static class Endpoints
             .WithTags("Supporter");
 
         supporter.MapGet("", GetSupporter)
-            .CacheOutput(p => p.Expire(TimeSpan.FromMinutes(5)).SetVaryByQuery("modId").Tag("supporter"));
+            .CacheOutput(p => p.Expire(TimeSpan.FromMinutes(5)).SetVaryByQuery("modId").Tag("supporter"))
+            .RequireCors("Public");
         supporter.MapPut("{modId}", SetSupporter).RequireAuthorization();
 
         var config = v2.MapGroup("config")
             .WithTags("Config");
 
-        config.MapGet("", GetConfigValues);
+        config.MapGet("", GetConfigValues).RequireCors("Public");
         config.MapPut("{modId}", SetConfigValues).RequireAuthorization();
 
         var telemetry = v2.MapGroup("telemetry")
@@ -37,7 +38,8 @@ internal static class Endpoints
             .RequireRateLimiting("telemetry");
 
         telemetry.MapPost("{modid}", CreateTelemetryEntry)
-            .WithRequestTimeout(TimeSpan.FromSeconds(1));
+            .WithRequestTimeout(TimeSpan.FromSeconds(1))
+            .RequireCors("Public");
 
     }
 

@@ -38,6 +38,11 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 builder.Services.AddOutputCache();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Public", policy =>
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
 
 var app = builder.Build();
 
@@ -50,6 +55,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseOutputCache();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 

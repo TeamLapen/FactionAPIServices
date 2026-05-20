@@ -15,7 +15,7 @@ internal static class Endpoints
 {
     public static void MapV0Endpoints(this IEndpointRouteBuilder endpoints)
     {
-        var v0 = endpoints.MapGroup("v0");
+        var v0 = endpoints.MapGroup("v0").RequireCors("Public");
 
         v0.MapGroup("supporter")
             .WithTags("Supporter")
